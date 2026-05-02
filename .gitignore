@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Environment variables — NEVER commit these
+.env
+.env.local
+.env.production
+backend/.env
+
+# Build outputs
+dist/
+build/
+frontend/dist/
+extension/overlay.js
+extension/overlay.css
+extension/overlay-chunk.js
+
+# Firebase service account (keep private!)
+*-service-account.json
+serviceAccountKey.json
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/settings.json
+.idea/
+*.swp
+
+# Extension icons (optional — add your own)
+# extension/icons/

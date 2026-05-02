@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Universal Interface Adapter</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
+    :root {
+      --bg:#080b14;--bg2:#0d1120;--bg3:#111827;
+      --border:rgba(255,255,255,0.06);
+      --accent:#6366f1;--accent2:#8b5cf6;
+      --text:#e8eaf2;--muted:#a5a9c5;--dim:#4b5280;
+      --success:#22c55e;
+    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{width:360px;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
+
+    /* Header */
+    .hdr{padding:15px 18px 13px;background:linear-gradient(135deg,#0d1120,#141929);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;position:relative;overflow:hidden}
+    .hdr::before{content:'';position:absolute;top:-40px;right:-40px;width:130px;height:130px;border-radius:50%;background:radial-gradient(circle,rgba(99,102,241,.14),transparent 70%)}
+    .logo-icon{width:33px;height:33px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:0 4px 14px rgba(99,102,241,.4);flex-shrink:0}
+    .hdr h1{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:#fff;letter-spacing:-.01em}
+    .hdr p{font-size:10px;color:var(--dim)}
+
+    /* Screens */
+    .screen{display:none}
+    .screen.active{display:block}
+
+    /* ── Login ──────────────────────────────────────────── */
+    .login-body{padding:18px 20px 20px}
+    .slabel{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);margin-bottom:9px}
+    .google-btn{width:100%;padding:10px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:12px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:'DM Sans',sans-serif;transition:all .2s;margin-bottom:13px}
+    .google-btn:hover{background:#1a2035;border-color:rgba(255,255,255,.12)}
+    .divider{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+    .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+    .divider span{font-size:10px;color:var(--dim)}
+    .ig{margin-bottom:9px}
+    .ig label{display:block;font-size:11px;font-weight:500;color:var(--muted);margin-bottom:4px}
+    .ig input{width:100%;padding:8px 11px;background:var(--bg2);border:1px solid var(--border);border-radius:9px;color:var(--text);font-size:12px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s}
+    .ig input:focus{border-color:rgba(99,102,241,.5)}
+    .pri-btn{width:100%;padding:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:10px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:0 4px 14px rgba(99,102,241,.3);transition:all .2s;margin-top:3px}
+    .pri-btn:hover{opacity:.92}
+    .pri-btn:disabled{opacity:.5;cursor:not-allowed}
+    .sw-link{text-align:center;margin-top:11px;font-size:11px;color:var(--dim)}
+    .sw-link button{background:none;border:none;color:#a5b4fc;cursor:pointer;font-size:11px;font-weight:600;text-decoration:underline;font-family:'DM Sans',sans-serif}
+    .err{font-size:11px;color:#fca5a5;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:7px 10px;margin-bottom:9px;display:none}
+    .err.show{display:block}
+    .skip-link{text-align:center;margin-top:11px}
+    .skip-link button{background:none;border:none;color:var(--dim);font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif}
+
+    /* ── App ─────────────────────────────────────────────── */
+    .user-bar{display:flex;align-items:center;gap:8px;padding:9px 18px;border-bottom:1px solid var(--border);background:var(--bg2)}
+    .av{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+    .user-nm{font-size:11px;font-weight:600;color:var(--muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .logout-btn{font-size:10px;color:var(--dim);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;flex-shrink:0}
+    .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:13px 18px;border-bottom:1px solid var(--border)}
+    .tl{font-size:12px;font-weight:500;color:var(--muted)}
+    .tog{position:relative;width:44px;height:24px}
+    .tog input{display:none}
+    .sldr{position:absolute;inset:0;background:#1e2440;border-radius:12px;cursor:pointer;transition:background .3s;border:1px solid rgba(255,255,255,.08)}
+    .sldr::after{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;background:var(--dim);border-radius:50%;transition:all .3s cubic-bezier(.34,1.56,.64,1)}
+    .tog input:checked+.sldr{background:linear-gradient(135deg,var(--accent),var(--accent2))}
+    .tog input:checked+.sldr::after{left:21px;background:#fff}
+    .modes-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:14px 18px;border-bottom:1px solid var(--border)}
+    .mc{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:10px 9px;cursor:pointer;transition:all .2s;text-align:left}
+    .mc:hover{background:var(--bg3)}
+    .mc.on{background:rgba(99,102,241,.1);border-color:rgba(99,102,241,.4)}
+    .mc-icon{font-size:19px;margin-bottom:4px}
+    .mc-name{font-size:11px;font-weight:700;color:var(--muted);display:block}
+    .mc.on .mc-name{color:#a5b4fc}
+    .mc-hint{font-size:9px;color:var(--dim);line-height:1.4;margin-top:2px}
+    .actions{padding:11px 18px 15px;display:flex;flex-direction:column;gap:6px}
+    .ab{width:100%;padding:9px 13px;border-radius:10px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;display:flex;align-items:center;gap:7px;transition:all .2s}
+    .ab-pri{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 4px 14px rgba(99,102,241,.3)}
+    .ab-pri:hover{opacity:.9}
+    .ab-sec{background:var(--bg2);color:var(--muted);border:1px solid var(--border)}
+    .ab-sec:hover{background:var(--bg3)}
+    .status-bar{padding:7px 18px 13px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--dim)}
+    .dot{width:6px;height:6px;border-radius:50%;background:var(--dim);transition:all .3s}
+    .dot.on{background:var(--success);box-shadow:0 0 8px rgba(34,197,94,.5)}
+    .spinner{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="hdr">
+  <div class="logo-icon">♿</div>
+  <div>
+    <h1>Universal Interface Adapter</h1>
+    <p>AI Accessibility Layer</p>
+  </div>
+</div>
+
+<!-- ══ SCREEN: Login ══════════════════════════════════════ -->
+<div class="screen active" id="screen-login">
+  <div class="login-body">
+    <div id="login-error" class="err"></div>
+    <div class="slabel">Sign in to sync your preferences</div>
+    <button class="google-btn" id="google-btn">
+      <svg width="15" height="15" viewBox="0 0 24 24">
+        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+      </svg>
+      Continue with Google
+    </button>
+    <div class="divider"><span>or use email</span></div>
+    <div class="ig"><label>Email</label><input type="email" id="email-in" placeholder="you@example.com" /></div>
+    <div class="ig"><label>Password</label><input type="password" id="pass-in" placeholder="••••••••" /></div>
+    <button class="pri-btn" id="email-btn">Sign In</button>
+    <div class="sw-link">
+      <span id="sw-txt">Don't have an account?</span>
+      <button id="sw-btn">Register</button>
+    </div>
+    <div class="skip-link">
+      <button id="skip-btn">Skip — use without account</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SCREEN: App ════════════════════════════════════════ -->
+<div class="screen" id="screen-app">
+  <div class="user-bar">
+    <div class="av" id="av">👤</div>
+    <div class="user-nm" id="user-nm">Guest</div>
+    <button class="logout-btn" id="logout-btn">Sign out</button>
+  </div>
+
+  <div class="toggle-row">
+    <span class="tl">Enable on this page</span>
+    <label class="tog"><input type="checkbox" id="main-tog" /><div class="sldr"></div></label>
+  </div>
+
+  <div class="modes-grid">
+    <div class="mc" data-mode="lowVision"><div class="mc-icon">👁️</div><span class="mc-name">Low Vision</span><div class="mc-hint">High contrast + large text</div></div>
+    <div class="mc" data-mode="colorBlind"><div class="mc-icon">🎨</div><span class="mc-name">Color Blind</span><div class="mc-hint">Pattern overlays</div></div>
+    <div class="mc" data-mode="simpleMode"><div class="mc-icon">📝</div><span class="mc-name">Simple Mode</span><div class="mc-hint">Easy language + icons</div></div>
+    <div class="mc" data-mode="translateMode"><div class="mc-icon">🌐</div><span class="mc-name">Translate</span><div class="mc-hint">Full page translation</div></div>
+  </div>
+
+  <div class="actions">
+    <button class="ab ab-pri" id="explain-btn">🤖 Explain This Page</button>
+    <button class="ab ab-sec" id="voice-btn">🎤 Voice Commands</button>
+    <button class="ab ab-sec" id="panel-btn">⚙️ Open Full Panel</button>
+  </div>
+
+  <div class="status-bar">
+    <div class="dot" id="sdot"></div>
+    <span id="stxt">Extension inactive</span>
+  </div>
+</div>
+
+<script>
+(async () => {
+  let enabled = false, modes = {}, isReg = false, user = null;
+
+  const $ = id => document.getElementById(id);
+  const showScreen = id => { document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); $(id).classList.add('active'); };
+  const showErr = msg => { $('login-error').textContent=msg; $('login-error').classList.add('show'); setTimeout(()=>$('login-error').classList.remove('show'),5000); };
+  const setBtn = (id,loading,orig) => { const b=$(id); if(loading){b._h=b.innerHTML;b.innerHTML='<span class="spinner"></span>';b.disabled=true;}else{b.innerHTML=b._h||orig;b.disabled=false;} };
+
+  async function getTab() { const [t]=await chrome.tabs.query({active:true,currentWindow:true}); return t; }
+  async function send(msg) { const t=await getTab(); if(!t?.id)return null; try{return await chrome.tabs.sendMessage(t.id,msg);}catch{return null;} }
+
+  function updateUI() {
+    $('main-tog').checked = enabled;
+    $('sdot').className = 'dot'+(enabled?' on':'');
+    $('stxt').textContent = enabled?'Extension active':'Extension inactive';
+    document.querySelectorAll('.mc').forEach(c=>{ c.classList.toggle('on',!!modes[c.dataset.mode]); });
+    $('av').textContent = user ? (user.displayName||user.email||'U')[0].toUpperCase() : '👤';
+    $('user-nm').textContent = user ? (user.displayName||user.email||'User') : 'Guest (no account)';
+  }
+
+  async function boot() {
+    const s = await chrome.storage.sync.get(['uia_enabled','uia_modes']);
+    const l = await chrome.storage.local.get(['uia_user']);
+    enabled = s.uia_enabled||false;
+    modes = s.uia_modes||{};
+    user = l.uia_user||null;
+    if(user) { showScreen('screen-app'); } else { showScreen('screen-login'); }
+    updateUI();
+  }
+
+  // Google sign-in via chrome.identity
+  $('google-btn').addEventListener('click', async () => {
+    setBtn('google-btn',true);
+    try {
+      const token = await new Promise((res,rej)=>{
+        chrome.identity.getAuthToken({interactive:true},t=>{ chrome.runtime.lastError?rej(new Error(chrome.runtime.lastError.message)):res(t); });
+      });
+      const info = await fetch('https://www.googleapis.com/oauth2/v1/userinfo?alt=json',{headers:{Authorization:`Bearer ${token}`}}).then(r=>r.json());
+      user = {uid:info.id,email:info.email,displayName:info.name,photoURL:info.picture,googleToken:token};
+      await chrome.storage.local.set({uia_user:user,uia_token:token});
+      showScreen('screen-app'); updateUI();
+    } catch(e){ showErr('Google sign-in failed: '+e.message); }
+    finally{ setBtn('google-btn',false,'<svg width="15" height="15" viewBox="0 0 24 24">...</svg> Continue with Google'); }
+  });
+
+  // Email auth
+  $('email-btn').addEventListener('click', async () => {
+    const email=$('email-in').value.trim(), pass=$('pass-in').value;
+    if(!email||!pass) return showErr('Enter email and password');
+    if(pass.length<6) return showErr('Password must be 6+ characters');
+    setBtn('email-btn',true);
+    try {
+      // Simple local auth — replace with Firebase REST API for full auth
+      user = {uid:btoa(email).replace(/=/g,''),email,displayName:email.split('@')[0]};
+      await chrome.storage.local.set({uia_user:user});
+      showScreen('screen-app'); updateUI();
+    } catch(e){ showErr('Auth failed: '+e.message); }
+    finally{ setBtn('email-btn',false,isReg?'Create Account':'Sign In'); }
+  });
+
+  $('sw-btn').addEventListener('click',()=>{
+    isReg=!isReg;
+    $('email-btn').textContent=isReg?'Create Account':'Sign In';
+    $('sw-txt').textContent=isReg?'Already have an account?':"Don't have an account?";
+    $('sw-btn').textContent=isReg?'Sign in instead':'Register';
+  });
+
+  $('skip-btn').addEventListener('click',()=>{ showScreen('screen-app'); updateUI(); });
+
+  $('logout-btn').addEventListener('click', async()=>{
+    await chrome.storage.local.remove(['uia_user','uia_token']);
+    user=null; showScreen('screen-login');
+  });
+
+  $('main-tog').addEventListener('change', async e=>{
+    enabled=e.target.checked;
+    await chrome.storage.sync.set({uia_enabled:enabled});
+    await send({type:'TOGGLE_EXTENSION',payload:{enabled}});
+    updateUI();
+  });
+
+  document.querySelectorAll('.mc').forEach(c=>{
+    c.addEventListener('click', async()=>{
+      if(!enabled){ enabled=true; $('main-tog').checked=true; await chrome.storage.sync.set({uia_enabled:true}); await send({type:'TOGGLE_EXTENSION',payload:{enabled:true}}); }
+      const mode=c.dataset.mode;
+      modes[mode]=!modes[mode];
+      await chrome.storage.sync.set({uia_modes:modes});
+      await send({type:'SET_MODE',payload:{mode,value:modes[mode]}});
+      updateUI();
+    });
+  });
+
+  $('explain-btn').addEventListener('click', async()=>{ await send({type:'EXPLAIN_PAGE',payload:{}}); window.close(); });
+  $('voice-btn').addEventListener('click',  async()=>{ await send({type:'START_VOICE',payload:{}}); window.close(); });
+  $('panel-btn').addEventListener('click',  async()=>{ await send({type:'SHOW_PANEL',payload:{}}); window.close(); });
+
+  await boot();
+})();
+</script>
+</body>
+</html>

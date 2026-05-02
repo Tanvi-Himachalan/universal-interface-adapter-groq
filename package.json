@@ -1,0 +1,27 @@
+{
+  "name": "universal-interface-adapter",
+  "version": "1.0.0",
+  "description": "AI-powered accessibility Chrome Extension that transforms any website",
+  "private": true,
+  "scripts": {
+    "setup": "npm run setup:backend && npm run setup:frontend",
+    "setup:backend": "cd backend && npm install",
+    "setup:frontend": "cd frontend && npm install",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build:extension": "cd frontend && npm run build:extension",
+    "start": "cd backend && npm start"
+  },
+  "keywords": [
+    "accessibility",
+    "chrome-extension",
+    "ai",
+    "openai",
+    "react",
+    "low-vision",
+    "color-blindness",
+    "translation",
+    "voice-commands"
+  ],
+  "license": "MIT"
+}
