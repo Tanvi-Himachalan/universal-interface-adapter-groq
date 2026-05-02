@@ -65,8 +65,7 @@ universal-interface-adapter/
 - Node.js 18+
 - npm or yarn
 - Google Chrome (latest)
-- OpenAI API key ([platform.openai.com](https://platform.openai.com))
-- Firebase project ([console.firebase.google.com](https://console.firebase.google.com))
+- Groq API key
 
 ---
 
@@ -88,44 +87,6 @@ npm install
 
 ---
 
-### Step 2 — Firebase Setup
-
-1. Go to [Firebase Console](https://console.firebase.google.com)
-2. Click **"Add project"** → name it `universal-interface-adapter`
-3. Enable **Authentication**:
-   - Build → Authentication → Sign-in method
-   - Enable **Google** and/or **Email/Password**
-4. Enable **Firestore**:
-   - Build → Firestore Database → Create database
-   - Start in **test mode** (you'll add security rules later)
-5. Get Admin SDK credentials:
-   - Project Settings (gear icon) → **Service Accounts**
-   - Click **"Generate new private key"** → download JSON
-6. Copy your credentials to backend `.env`:
-
-```bash
-cd backend
-cp .env.example .env
-# Edit .env with your actual values
-```
-
-**Firestore Security Rules** (Firestore → Rules):
-```
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
-    match /analytics/{doc} {
-      allow write: if true;
-      allow read: if false;
-    }
-  }
-}
-```
-
----
 
 ### Step 3 — Configure Backend Environment
 
@@ -341,9 +302,6 @@ Set `OPENAI_MODEL=gpt-4o` in `.env` for higher quality (more expensive)
 | Voice | Web Speech API (SpeechRecognition + SpeechSynthesis) |
 | Backend | Node.js, Express, Helmet, express-rate-limit |
 | AI | OpenAI GPT-4o-mini (via secure backend proxy) |
-| Auth + DB | Firebase Auth + Cloud Firestore |
-| OCR | Tesseract.js (client-side) |
-| Vision | TensorFlow.js (client-side element detection) |
 | Build | Vite |
 
 ---
